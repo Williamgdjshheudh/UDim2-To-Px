@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UDim2 → Pixels Calculator (Roblox)</title>
+  <style>
+    :root {
+      --bg: #0b1016; --panel: #111827; --muted:#6b7280; --text:#e5e7eb; --accent:#60a5fa; --ok:#22c55e; --warn:#f59e0b;
+      --radius: 16px; --pad: 16px; --gap: 12px; --shadow: 0 10px 25px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial}
+    body{margin:0;background:linear-gradient(145deg,#0b1016,#0f1622,#0b1016);color:var(--text)}
+    .wrap{max-width:1000px;margin:40px auto;padding:0 16px}
+    header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px}
+    h1{font-size:clamp(22px,3vw,32px);margin:0;letter-spacing:.3px}
+    .card{background:var(--panel);border-radius:var(--radius);padding:var(--pad);box-shadow:var(--shadow);border:1px solid #1f2937}
+    .grid{display:grid;gap:var(--gap)}
+    .grid.cols{grid-template-columns:repeat(12,1fr)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--gap)}
+    @media (max-width:760px){.row,.row3{grid-template-columns:1fr}}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    input[type="number"]{width:100%;padding:12px 12px;border-radius:12px;border:1px solid #243044;background:#0b1220;color:var(--text);outline:none}
+    input[type="number"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(96,165,250,.25)}
+    .btn{cursor:pointer;border:none;padding:10px 14px;border-radius:12px;background:var(--accent);color:white;font-weight:600}
+    .btn.secondary{background:#334155}
+    .btn:active{transform:translateY(1px)}
+    .muted{color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:8px;background:#0b1220;border:1px solid #243044;padding:8px 12px;border-radius:999px}
+    .out{display:flex;gap:16px;flex-wrap:wrap}
+    .stat{flex:1 1 220px;min-width:200px;background:#0b1220;border:1px solid #243044;border-radius:14px;padding:14px}
+    .stat h3{margin:0 0 6px 0;font-size:13px;color:var(--muted)}
+    .stat .big{font-size:28px;font-weight:800}
+    .footer{margin-top:14px;font-size:12px;color:var(--muted)}
+    .hl{color:var(--accent)}
+    .sep{height:1px;background:#1f2937;margin:16px 0}
+    .code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; background:#0b1220;border:1px solid #243044;border-radius:12px;padding:10px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>UDim2 → Pixels Calculator <span class="muted">for Roblox UI</span></h1>
+      <div class="pill">
+        <span>Formula</span>
+        <code class="muted">pixels = (screen * scale) + offset</code>
+      </div>
+    </header>
+
+    <div class="grid" style="gap:18px">
+
+      <!-- Screen Resolution Panel -->
+      <section class="card">
+        <div class="row">
+          <div>
+            <label>Screen Width (px)</label>
+            <input id="sw" type="number" min="1" step="1" value="1920" />
+          </div>
+          <div>
+            <label>Screen Height (px)</label>
+            <input id="sh" type="number" min="1" step="1" value="1080" />
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button id="useWin" class="btn" type="button">Use current browser size</button>
+          <button id="presetFHD" class="btn secondary" type="button">Preset 1920×1080</button>
+          <button id="presetHD" class="btn secondary" type="button">Preset 1366×768</button>
+          <button id="presetQHD" class="btn secondary" type="button">Preset 2560×1440</button>
+          <button id="preset4k" class="btn secondary" type="button">Preset 3840×2160</button>
+        </div>
+        <div class="footer">Tip: Di Roblox, <span class="hl">Scale</span> adalah persentase dari ukuran layar (0–1), sedangkan <span class="hl">Offset</span> adalah piksel tetap.</div>
+      </section>
+
+      <!-- Input UDim2 Panel -->
+      <section class="card">
+        <h2 style="margin-top:0">Size UDim2</h2>
+        <div class="row3">
+          <div>
+            <label>Scale X</label>
+            <input id="sx" type="number" step="0.001" value="0.267" />
+          </div>
+          <div>
+            <label>Offset X (px)</label>
+            <input id="ox" type="number" step="1" value="0" />
+          </div>
+          <div>
+            <label>→ Width (px)</label>
+            <input id="wx" type="number" step="1" value="" readonly />
+          </div>
+        </div>
+        <div class="row3" style="margin-top:12px">
+          <div>
+            <label>Scale Y</label>
+            <input id="sy" type="number" step="0.001" value="0.168" />
+          </div>
+          <div>
+            <label>Offset Y (px)</label>
+            <input id="oy" type="number" step="1" value="0" />
+          </div>
+          <div>
+            <label>→ Height (px)</label>
+            <input id="wy" type="number" step="1" value="" readonly />
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div class="out">
+          <div class="stat">
+            <h3>Computed Size</h3>
+            <div class="big" id="sizePx">—</div>
+            <div class="muted" id="sizeInfo">Waiting for input…</div>
+          </div>
+          <div class="stat">
+            <h3>UDim2 (copy‑ready)</h3>
+            <div class="code" id="udimText">UDim2.new(0.267, 0, 0.168, 0)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Optional Position UDim2 Panel (same math) -->
+      <section class="card">
+        <h2 style="margin-top:0">Position UDim2 (optional)</h2>
+        <p class="muted" style="margin-top:-4px">Rumusnya sama. Isi jika ingin hitung posisi juga.</p>
+        <div class="row3">
+          <div>
+            <label>Scale X</label>
+            <input id="psx" type="number" step="0.001" value="0" />
+          </div>
+          <div>
+            <label>Offset X (px)</label>
+            <input id="pox" type="number" step="1" value="0" />
+          </div>
+          <div>
+            <label>→ Pos X (px)</label>
+            <input id="pwx" type="number" step="1" value="" readonly />
+          </div>
+        </div>
+        <div class="row3" style="margin-top:12px">
+          <div>
+            <label>Scale Y</label>
+            <input id="psy" type="number" step="0.001" value="0" />
+          </div>
+          <div>
+            <label>Offset Y (px)</label>
+            <input id="poy" type="number" step="1" value="0" />
+          </div>
+          <div>
+            <label>→ Pos Y (px)</label>
+            <input id="pwy" type="number" step="1" value="" readonly />
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div class="out">
+          <div class="stat">
+            <h3>Computed Position</h3>
+            <div class="big" id="posPx">—</div>
+            <div class="muted" id="posInfo">Optional.</div>
+          </div>
+          <div class="stat">
+            <h3>UDim2 (copy‑ready)</h3>
+            <div class="code" id="posText">UDim2.new(0, 0, 0, 0)</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 style="margin-top:0">Notes</h2>
+        <ul>
+          <li>Gunakan nilai <strong>Scale</strong> (0–1) untuk UI yang responsif di berbagai resolusi.</li>
+          <li>Gunakan <strong>Offset</strong> untuk padding/tepi yang tetap (dalam piksel).</li>
+          <li>Hasil px akan berbeda untuk setiap pemain sesuai resolusinya.</li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const inputs = ["sw","sh","sx","ox","sy","oy","psx","pox","psy","poy"];
+
+    function clamp(v, min, max){ return Math.min(Math.max(v, min), max); }
+    function fmt(n){ return Number.isFinite(n) ? Math.round(n) : 0; }
+
+    function compute(){
+      const sw = +$("sw").value || 0;
+      const sh = +$("sh").value || 0;
+
+      const sx = clamp(+$("sx").value || 0, -10, 10);
+      const ox = +$("ox").value || 0;
+      const sy = clamp(+$("sy").value || 0, -10, 10);
+      const oy = +$("oy").value || 0;
+
+      const wx = (sw * sx) + ox;
+      const wy = (sh * sy) + oy;
+
+      $("wx").value = fmt(wx);
+      $("wy").value = fmt(wy);
+      $("sizePx").textContent = `${fmt(wx)} × ${fmt(wy)} px`;
+      $("sizeInfo").textContent = `= (${sw} * ${sx}) + ${ox} , (${sh} * ${sy}) + ${oy}`;
+      $("udimText").textContent = `UDim2.new(${sx}, ${ox}, ${sy}, ${oy})`;
+
+      // Position (optional)
+      const psx = clamp(+$("psx").value || 0, -10, 10);
+      const pox = +$("pox").value || 0;
+      const psy = clamp(+$("psy").value || 0, -10, 10);
+      const poy = +$("poy").value || 0;
+
+      const px = (sw * psx) + pox;
+      const py = (sh * psy) + poy;
+      $("pwx").value = fmt(px);
+      $("pwy").value = fmt(py);
+      $("posPx").textContent = `${fmt(px)} , ${fmt(py)} px`;
+      $("posInfo").textContent = `= (${sw} * ${psx}) + ${pox} , (${sh} * ${psy}) + ${poy}`;
+      $("posText").textContent = `UDim2.new(${psx}, ${pox}, ${psy}, ${poy})`;
+    }
+
+    // Event wiring
+    inputs.forEach(id => $(id).addEventListener('input', compute));
+
+    // Presets
+    $("useWin").addEventListener('click', () => {
+      $("sw").value = window.innerWidth;
+      $("sh").value = window.innerHeight;
+      compute();
+    });
+    $("presetFHD").addEventListener('click', () => { $("sw").value=1920; $("sh").value=1080; compute(); });
+    $("presetHD").addEventListener('click', () => { $("sw").value=1366; $("sh").value=768; compute(); });
+    $("presetQHD").addEventListener('click', () => { $("sw").value=2560; $("sh").value=1440; compute(); });
+    $("preset4k").addEventListener('click', () => { $("sw").value=3840; $("sh").value=2160; compute(); });
+
+    compute();
+  </script>
+</body>
+</html>
